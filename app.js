@@ -167,6 +167,7 @@ function generateSchedule() {
                            data-month="${currentMonth}"
                            value="${extra > 0 ? extra : ''}"
                            placeholder="-"
+                           inputmode="decimal"
                            style="width: 70px; padding: 5px;">
                 </td>
             </tr>
