@@ -14,6 +14,8 @@ INSTRUCTIONS:
    Open this folder in VS Code.
    Right click "index.html" -> Open with Live Server.
 
+   or python -m http.server 8080
+
 TREE STRUCTURE:
 
 /loan-calculator
