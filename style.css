@@ -220,6 +220,15 @@ button:active { background-color: var(--accent-strong); transform: translateY(0)
 .hidden { display: none !important; }
 .monthly-payment { font-size: 2.5rem; color: var(--success); font-weight: bold; margin: 10px 0; }
 .details p { margin: 5px 0; color: var(--muted); }
+.summary-chart {
+    margin: 14px auto 0;
+    width: 220px;
+    height: 220px;
+}
+.summary-chart canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
 
 /* Button Group */
 .button-group {
@@ -406,6 +415,11 @@ tr:nth-child(even) { background-color: var(--table-row); }
         padding: 6px 8px;
         font-size: 0.75rem;
         min-width: 86px;
+    }
+
+    .summary-chart {
+        width: 180px;
+        height: 180px;
     }
 
     .toast {

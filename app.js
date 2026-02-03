@@ -4,6 +4,7 @@
 let extraPaymentsState = {};
 let baseLoanDetails = {};
 let myChart = null;
+let summaryChart = null;
 const themeStorageKey = 'loan_calc_theme';
 let toastTimeoutId = null;
 
@@ -117,6 +118,7 @@ if (calcBtn) {
             document.getElementById('monthly-payment').innerText = '$' + monthlyPayment.toFixed(2);
             document.getElementById('total-payment').innerText = '$' + (monthlyPayment * totalMonths).toFixed(2);
             document.getElementById('total-interest').innerText = '$' + baseLoanDetails.originalInterest.toFixed(2);
+            drawSummaryChart(amount, baseLoanDetails.originalInterest);
 
             // Show Sections
             document.getElementById('results').classList.remove('hidden');
@@ -157,6 +159,7 @@ function applyTheme(theme) {
     localStorage.setItem(themeStorageKey, theme);
 
     applyChartTheme(myChart);
+    applySummaryChartTheme(summaryChart);
 }
 
 if (themeToggleBtn) {
@@ -277,6 +280,11 @@ function generateSchedule() {
 
     // 9. Finalize UI
     drawGraph(labels, principalData, interestData);
+    drawSummaryChart(amount, actualTotalInterest);
+    const totalPaymentEl = document.getElementById('total-payment');
+    const totalInterestEl = document.getElementById('total-interest');
+    if (totalPaymentEl) totalPaymentEl.innerText = '$' + actualTotalPaid.toFixed(2);
+    if (totalInterestEl) totalInterestEl.innerText = '$' + actualTotalInterest.toFixed(2);
     updateSavings(currentMonth - 1, actualTotalInterest, totalMonths, originalInterest);
 }
 // ==========================================
@@ -353,6 +361,73 @@ function applyChartTheme(chart) {
     }
 
     chart.update();
+}
+
+function applySummaryChartTheme(chart) {
+    if (!chart) return;
+
+    const chartText = getCssVar('--chart-text') || '#2b2f33';
+    const principalColor = getCssVar('--accent') || '#4a90e2';
+    const interestColor = getCssVar('--danger') || '#e74c3c';
+
+    chart.data.datasets[0].backgroundColor = [principalColor, interestColor];
+    chart.options.plugins.legend.labels.color = chartText;
+
+    chart.update();
+}
+
+function drawSummaryChart(principal, totalInterest) {
+    const canvas = document.getElementById('summaryChart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    if (summaryChart) {
+        summaryChart.destroy();
+    }
+
+    if (typeof Chart === 'undefined') {
+        console.error("Chart.js is not loaded. Please download chart.js to the project folder.");
+        return;
+    }
+
+    const chartText = getCssVar('--chart-text') || '#2b2f33';
+    const principalColor = getCssVar('--accent') || '#4a90e2';
+    const interestColor = getCssVar('--danger') || '#e74c3c';
+
+    summaryChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Principal', 'Interest'],
+            datasets: [
+                {
+                    data: [principal, totalInterest],
+                    backgroundColor: [principalColor, interestColor],
+                    borderColor: 'transparent'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: chartText
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const value = context.parsed || 0;
+                            return `${context.label}: $${value.toFixed(2)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 function drawGraph(months, principalData, interestData) {
@@ -630,6 +705,7 @@ function importCsvText(csvText) {
             document.getElementById('monthly-payment').innerText = '$' + monthlyPayment.toFixed(2);
             document.getElementById('total-payment').innerText = '$' + (monthlyPayment * totalMonths).toFixed(2);
             document.getElementById('total-interest').innerText = '$' + baseLoanDetails.originalInterest.toFixed(2);
+            drawSummaryChart(amount, baseLoanDetails.originalInterest);
 
             document.getElementById('results').classList.remove('hidden');
             const actionButtons = document.getElementById('action-buttons');
