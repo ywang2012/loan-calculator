@@ -77,6 +77,27 @@
 
 :root[data-theme="light"] {
     color-scheme: light;
+    --bg: #f4f7f6;
+    --surface: #ffffff;
+    --surface-elev: #ffffff;
+    --text: #1f2428;
+    --muted: #5f6b7a;
+    --border: #d9dde3;
+    --accent: #4a90e2;
+    --accent-strong: #357abd;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --secondary: #6c757d;
+    --secondary-strong: #5a6268;
+    --deep: #2c3e50;
+    --table-row: #f9f9f9;
+    --table-head: #4a90e2;
+    --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    --focus: rgba(74, 144, 226, 0.25);
+    --chart-text: #2b2f33;
+    --chart-grid: rgba(15, 23, 42, 0.08);
+    --success-bg: #d4edda;
+    --success-text: #155724;
 }
 
 body {
@@ -363,6 +384,30 @@ tr:nth-child(even) { background-color: var(--table-row); }
 }
 
 @media (max-width: 600px) {
+    .header {
+        flex-wrap: nowrap;
+    }
+
+    .title-row h1 {
+        font-size: 1.2rem;
+        white-space: nowrap;
+    }
+
+    .theme-picker {
+        gap: 6px;
+        font-size: 0.75rem;
+    }
+
+    .theme-label {
+        display: none;
+    }
+
+    .theme-toggle {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+        min-width: 86px;
+    }
+
     .toast {
         left: 16px;
         right: 16px;
