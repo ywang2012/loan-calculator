@@ -395,6 +395,32 @@ function drawSummaryChart(principal, totalInterest) {
     const principalColor = getCssVar('--accent') || '#4a90e2';
     const interestColor = getCssVar('--danger') || '#e74c3c';
 
+    const percentLabelPlugin = {
+        id: 'percentLabels',
+        afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            const dataset = chart.data.datasets[0];
+            const meta = chart.getDatasetMeta(0);
+            const total = dataset.data.reduce((sum, value) => sum + value, 0);
+            if (!total) return;
+
+            ctx.save();
+            ctx.font = '600 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            meta.data.forEach((arc, index) => {
+                const value = dataset.data[index] || 0;
+                if (!value) return;
+                const percent = (value / total) * 100;
+                ctx.fillStyle = '#ffffff';
+                const { x, y } = arc.tooltipPosition();
+                ctx.fillText(`${percent.toFixed(1)}%`, x, y);
+            });
+            ctx.restore();
+        }
+    };
+
     summaryChart = new Chart(ctx, {
         type: 'pie',
         data: {
@@ -413,20 +439,55 @@ function drawSummaryChart(principal, totalInterest) {
             plugins: {
                 legend: {
                     position: 'bottom',
+                    align: 'center',
+                    display: true,
+                    fullSize: false,
                     labels: {
-                        color: chartText
+                        color: chartText,
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        padding: 6,
+                        usePointStyle: true,
+                        font: {
+                            size: 11
+                        },
+                        generateLabels: (chart) => {
+                            const data = chart.data.datasets[0].data || [];
+                            const total = data.reduce((sum, value) => sum + value, 0);
+                            const colors = chart.data.datasets[0].backgroundColor || [];
+                            const textColor = chart.options.plugins?.legend?.labels?.color || chartText;
+                            return chart.data.labels.map((label, index) => {
+                                const value = data[index] || 0;
+                                const percent = total > 0 ? (value / total) * 100 : 0;
+                                return {
+                                    text: `${label} (${percent.toFixed(1)}%)`,
+                                    fillStyle: Array.isArray(colors) ? colors[index] : colors,
+                                    strokeStyle: 'transparent',
+                                    lineWidth: 0,
+                                    fontColor: textColor,
+                                    textColor: textColor,
+                                    color: textColor,
+                                    hidden: false,
+                                    index
+                                };
+                            });
+                        }
                     }
                 },
                 tooltip: {
                     callbacks: {
                         label: (context) => {
                             const value = context.parsed || 0;
-                            return `${context.label}: $${value.toFixed(2)}`;
+                            const dataset = context.dataset?.data || [];
+                            const total = dataset.reduce((sum, item) => sum + item, 0);
+                            const percent = total > 0 ? (value / total) * 100 : 0;
+                            return `${context.label}: $${value.toFixed(2)} (${percent.toFixed(1)}%)`;
                         }
                     }
                 }
             }
-        }
+        },
+        plugins: [percentLabelPlugin]
     });
 }
 
